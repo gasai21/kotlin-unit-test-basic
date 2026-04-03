@@ -17,55 +17,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unit_test_basic.ui.components.AppButton
 import com.example.unit_test_basic.ui.components.AppTextField
 
 @Composable
 fun RegisterScreen(
     onRegisterClick: () -> Unit,
-    onBackToLoginClick: () -> Unit
+    onBackToLoginClick: () -> Unit,
+    viewModel: RegisterViewModel = viewModel()
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-    var nameError by remember { mutableStateOf<String?>(null) }
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-
-    fun validate(): Boolean {
-        var isValid = true
-
-        if (name.isBlank()) {
-            nameError = "Nama tidak boleh kosong"
-            isValid = false
-        } else {
-            nameError = null
-        }
-
-        if (email.isBlank()) {
-            emailError = "Email tidak boleh kosong"
-            isValid = false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailError = "Format email tidak valid"
-            isValid = false
-        } else {
-            emailError = null
-        }
-
-        if (password.isBlank()) {
-            passwordError = "Password tidak boleh kosong"
-            isValid = false
-        } else if (password.length < 6) {
-            passwordError = "Password minimal 6 karakter"
-            isValid = false
-        } else {
-            passwordError = null
-        }
-
-        return isValid
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -87,26 +48,20 @@ fun RegisterScreen(
         )
 
         AppTextField(
-            value = name,
-            onValueChange = { 
-                name = it
-                if (nameError != null) nameError = null
-            },
+            value = viewModel.name,
+            onValueChange = { viewModel.onNameChange(it) },
             label = "Nama Lengkap",
-            error = nameError,
+            error = viewModel.nameError,
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         AppTextField(
-            value = email,
-            onValueChange = { 
-                email = it
-                if (emailError != null) emailError = null
-            },
+            value = viewModel.email,
+            onValueChange = { viewModel.onEmailChange(it) },
             label = "Email",
-            error = emailError,
+            error = viewModel.emailError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
         )
@@ -114,13 +69,10 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         AppTextField(
-            value = password,
-            onValueChange = { 
-                password = it
-                if (passwordError != null) passwordError = null
-            },
+            value = viewModel.password,
+            onValueChange = { viewModel.onPasswordChange(it) },
             label = "Password",
-            error = passwordError,
+            error = viewModel.passwordError,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
@@ -131,7 +83,7 @@ fun RegisterScreen(
         AppButton(
             text = "Daftar",
             onClick = {
-                if (validate()) {
+                if (viewModel.validate()) {
                     onRegisterClick()
                 }
             }
