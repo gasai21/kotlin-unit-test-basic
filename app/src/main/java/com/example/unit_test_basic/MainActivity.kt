@@ -12,8 +12,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.unit_test_basic.ui.screens.home.HomeScreen
 import com.example.unit_test_basic.ui.screens.login.LoginScreen
+import com.example.unit_test_basic.ui.screens.login.LoginViewModel
 import com.example.unit_test_basic.ui.screens.register.RegisterScreen
+import com.example.unit_test_basic.ui.screens.register.RegisterViewModel
 import com.example.unit_test_basic.ui.theme.UnittestbasicTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,33 +40,35 @@ fun AppNavigation() {
     ) {
         // Halaman Login
         composable("login") {
+            val loginViewModel: LoginViewModel = viewModel()
             LoginScreen(
                 onLoginSuccess = { email ->
-                    // Navigasi ke home sambil membawa email sebagai argumen
                     navController.navigate("home/$email") {
-                        // Hapus login dari backstack agar tidak bisa kembali ke login setelah masuk
                         popUpTo("login") { inclusive = true }
                     }
                 },
                 onRegisterClick = {
                     navController.navigate("register")
-                }
+                },
+                viewModel = loginViewModel
             )
         }
 
         // Halaman Register
         composable("register") {
+            val registerViewModel: RegisterViewModel = viewModel()
             RegisterScreen(
                 onRegisterClick = {
                     navController.popBackStack()
                 },
                 onBackToLoginClick = {
                     navController.popBackStack()
-                }
+                },
+                viewModel = registerViewModel
             )
         }
 
-        // Halaman Home dengan Argumen (Data User)
+        // Halaman Home
         composable(
             route = "home/{userName}",
             arguments = listOf(
@@ -75,7 +80,6 @@ fun AppNavigation() {
                 userName = userName,
                 onLogoutClick = {
                     navController.navigate("login") {
-                        // Bersihkan seluruh stack saat logout
                         popUpTo(0) { inclusive = true }
                     }
                 }
